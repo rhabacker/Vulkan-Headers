@@ -1,0 +1,11 @@
+
+# set up the Vulkan::Headers target for consistency
+add_library(vulkan-headers INTERFACE)
+target_include_directories(vulkan-headers INTERFACE $<INSTALL_INTERFACE:include>)
+add_library(Vulkan::Headers ALIAS vulkan-headers)
+
+get_target_property(VulkanHeaders_INCLUDE_DIRS Vulkan::Headers INTERFACE_INCLUDE_DIRECTORIES)
+
+# avoid the need to for an additional find_package call
+include(CMakeFindDependencyMacro)
+find_dependency(VulkanRegistry)

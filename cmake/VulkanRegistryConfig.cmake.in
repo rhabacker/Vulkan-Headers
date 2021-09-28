@@ -1,0 +1,6 @@
+
+# set up the Vulkan::Registry target
+add_library(vulkan-registry INTERFACE)
+target_include_directories(vulkan-registry INTERFACE $<INSTALL_INTERFACE:include>)
+add_library(Vulkan::Registry ALIAS vulkan-registry)
+get_target_property(VulkanRegistry_DIR Vulkan::Registry INTERFACE_INCLUDE_DIRECTORIES)

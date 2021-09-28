@@ -34,6 +34,8 @@ if(WIN32 AND CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "default install path" FORCE)
 endif()
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+include(VulkanMacros)
 # --------------------------------------------------------------------------------------------------------------------------------
 
 # define exported targets for nested project builds to consume
@@ -41,9 +43,30 @@ add_library(Vulkan-Headers INTERFACE)
 target_include_directories(Vulkan-Headers INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 add_library(Vulkan::Headers ALIAS Vulkan-Headers)
 
+# get header version
+set(VULKAN_CORE_H include/vulkan/vulkan_core.h)
+file(STRINGS  ${VULKAN_CORE_H} VulkanHeaderVersionLine REGEX "^#define VK_HEADER_VERSION ")
+string(REGEX MATCHALL "[0-9]+" VulkanHeaderVersion "${VulkanHeaderVersionLine}")
+
+# generate cmake support files for headers
+vulkan_add_cmake_support_files(
+    CONFIG_TEMPLATE cmake/VulkanHeadersConfig.cmake.in
+    PREFIX VulkanHeaders
+    VERSION 1.2.${VulkanHeaderVersion}.0
+    NO_EXPORT
+)
+
 add_library(Vulkan-Registry INTERFACE)
 target_include_directories(Vulkan-Registry INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/registry")
 add_library(Vulkan::Registry ALIAS Vulkan-Registry)
+
+# generate cmake support files for registry
+vulkan_add_cmake_support_files(
+    CONFIG_TEMPLATE cmake/VulkanRegistryConfig.cmake.in
+    PREFIX VulkanRegistry
+    VERSION 1.2.${VulkanHeaderVersion}.0
+    NO_EXPORT
+)
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/vulkan" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/vk_video" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
